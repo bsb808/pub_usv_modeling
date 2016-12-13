@@ -1,0 +1,115 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% latex_template_ieee_bbing.tex
+%
+% 28.02.2008  bsb Created 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Final - 2 column style
+%\documentclass[10pt,final,journal]{../latexlib/latex_ieee/IEEEtran}
+% Draft - single column style
+\documentclass[11pt,draftcls,journal,onecolumn]{../latexlib/latex_ieee/IEEEtran}
+
+% If the IEEEtran.cls has not been installed into the LaTeX system files, 
+% manually specify the path to it:
+% \documentclass[conference]{../sty/IEEEtran} 
+
+% Gives LaTeX2e the abilsity to do double column
+%% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor IEEEtran}
+
+% From thesis main (bbing)
+\usepackage{amssymb,longtable,dcolumn}
+
+% to use pdflatex
+% Standard bbing packages
+\usepackage{cite}      % Written by Donald Arseneau
+\usepackage{graphicx}  % Written by David Carlisle and Sebastian Rahtz
+\usepackage{url}       % Written by Donald Arseneau
+\usepackage{amssymb,longtable,dcolumn}
+%\usepackage{subfigure}
+%\usepackage{stfloats}  % Written by Sigitas Tolusis
+\usepackage[caption=false,font=footnotesize]{subfig}
+%\usepackage{fixltx2e}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{units}
+\usepackage{../latexlib/latex_cmds/math_bbing}
+\usepackage{acronym}
+\usepackage{csvsimple}
+\usepackage{../latexlib/latex_cmds/my_acronyms}
+\usepackage{color,soul}
+
+\begin{document}
+
+\newtheorem{remark}{Remark}
+\renewcommand{\theremark}{\unskip}
+
+
+\input{../latexlib/latex_cmds/Commands}  % shortcuts to thesis stuff
+\input{../latexlib/latex_cmds/defs}
+%\include{./latex_cmds/Commands}  % shortcuts to thesis stuff
+%\include{./latex_cmds/defs}
+
+
+% set the figure default size
+\newcommand{\SF}{0.2}
+\newcommand{\SFb}{0.45}
+\newcommand{\SFPic}{0.45}
+\newcommand{\SFPlot}{0.45}
+\newcommand{\SFc}{0.25}
+% Just a lazy way of setting the figure width (percentage of text width)
+% 0.7 works well for 1 column
+% 0.4 works well for 2 column
+\newcommand{\FigWidth}{\SFb}
+
+% Use this one for the draft version
+\newcommand{\scaleOneTwo}[2] {\scalebox{#1}}
+% Use this one for the two column version
+%\newcommand{\scaleOneTwo}[2] {\scalebox{#2}}
+
+% Graphics for this paper
+\graphicspath{{./figs/}}
+
+% paper title
+%\title{Towards an Experimentally Validated Plume Model to Support Robotic Plume Characterization}
+\title{USV Modeling}
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+\author{Brian~Bingham$^{1}$% <-this % stops a space
+\thanks{$^{1}$ Brian~Bingham is with the Department of Mechanical and Aerospace Engineering, Naval Postgraduate School, Monterey, CA 93950, USA. {\tt\small bbingham@nps.edu}}%
+}
+
+% make the title area
+\maketitle
+
+\begin{abstract}
+Abstract
+\end{abstract}
+% no keywords
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+
+\section{Background}
+
+
+\section{Acknowledgments}
+
+% standard IEEE bibliography style from:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/bibtex
+\bibliographystyle{../latex_ieee/IEEEtran}
+% argument is your BibTeX string definitions and bibliography database(s)
+\bibliography{../bibtexdatabase/bbing_master}
+%\bibliography{./latex_ieee/IEEEabrv}
+
+% if you will not have a photo at all:
+
+% that's all folks
+
+\end{document}
+
+
