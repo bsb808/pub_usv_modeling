@@ -26,6 +26,7 @@
 \usepackage{graphicx}  % Written by David Carlisle and Sebastian Rahtz
 \usepackage{url}       % Written by Donald Arseneau
 \usepackage{amssymb,longtable,dcolumn}
+\usepackage{bm}
 %\usepackage{subfigure}
 %\usepackage{stfloats}  % Written by Sigitas Tolusis
 \usepackage[caption=false,font=footnotesize]{subfig}
@@ -96,12 +97,62 @@ Abstract
 
 \section{Background}
 
+\cite{sonnenburg03modeling} examines model for USV with steerable outboard motor (vectored thrust) where sideslip is a major concern.  Uses notation from \cite{fossen94guidance}
+
+\section{Maneuvering Model}
+In this section we follow the notation and process detailed in \cite{fossen11handbook}. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.
+\beqn
+\bm{M}_{RB}\dot{\bm{\nu}} + \bm{M}_A\dot{\bm{\nu}}_r + 
+\bm{C}_{RB}(\bm{\nu})\bm{\nu} + \bm{C}_A(\bm{\nu}_r)\bm{\nu}_r + 
+\bm{D}(\bm{\nu}_r)\bm{\nu}_r
+= \bm{\tau}+\bm{\tau}_{wind}+\bm{\tau}_{waver}
+\eeqn
+where $\bm{\nu}_r$ is the velocity vector relative to an irrotational water current $\bm{\nu}_c$, i.e., $\bm{\nu}=\bm{\nu}_r+\bm{\nu}_c$.  The rigid body kinetics are represented by the rigid body mass $\bm{M}_{RB}$ 
+\beqn
+\bm{M}_{RB}= \left[ 
+\begin{array}{ccc}
+m & 0 & 0 \\
+0 & m & m x_g \\
+0 & m x_g & I_z 
+\end{array} \right],
+\eeqn
+where $m$ is the mass of the vehicle, $I_z$ is the moment of inertia about the body-centered z-axis and $x_g$ is distance, along the x-axis, from the origin of the body-centered frame to the center of gravity of the vessel, and by the rigid body Coriolis-centripetal matrix,
+\beqn
+\bm{C}_{RB}(\bm{\nu})= \left[ 
+\begin{array}{ccc}
+0 & 0 & -m(x_gr+v) \\
+0 & 0 & mu \\
+m(x_gr+v) & -mu  & 0 
+\end{array} \right].
+\eeqn
+Noting that $\bm{C}_{RB}(\bm{\nu})$ is skew-symmetric, i.e., $\bm{C}_{RB}(\bm{\nu})=-\bm{C}_{RB}^T(\bm{\nu})$.  The hydrodynamic effects are represented by the added mass matrix
+\beqn
+\bm{M}_{A}= \left[ 
+\begin{array}{ccc}
+-X_{\dot{u}} & 0 & 0 \\
+0 & -Y_{\dot{v}} & -Y_{\dot{r}} \\
+0 & -Y_{\dot{r}} & -N_{\dot{r}} 
+\end{array} \right].
+\eeqn
+and the Coriolis-centripetal matrix for the added mass
+\beqn
+\bm{C}_{A}(\bm{\nu}_r)= \left[ 
+\begin{array}{ccc}
+0 & 0 & Y_{\dot{v}}v_r+Y_{\dot{r}}r \\
+0 & 0 & -X_{\dot{u}}u_r\\
+ -Y_{\dot{v}}v_r - Y_{\dot{r}}r& X_{\dot{u}}u_r & 0 
+\end{array} \right].
+\eeqn
+It is worth noting that $\bm{C}_A$ includes the nonlinear Munk moment.  Following \cite{fosson11handbook} the SNAME notation for the hydrodynamic derivatives.
+
+Use \cite{sonnenburg10control} to get linear + quadratic
 
 \section{Acknowledgments}
 
 % standard IEEE bibliography style from:
 % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/bibtex
-\bibliographystyle{../latex_ieee/IEEEtran}
+%\bibliographystyle{../latex_ieee/IEEEtran}
+\bibliographystyle{apalike}
 % argument is your BibTeX string definitions and bibliography database(s)
 \bibliography{../bibtexdatabase/bbing_master}
 %\bibliography{./latex_ieee/IEEEabrv}
