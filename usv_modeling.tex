@@ -97,15 +97,22 @@ Abstract
 
 \section{Background}
 
-\cite{sonnenburg03modeling} examines model for USV with steerable outboard motor (vectored thrust) where sideslip is a major concern.  Uses notation from \cite{fossen94guidance}
-
+\cite{sonnenburg13modeling} and \cite{sonnenburg10control} examine model for USV with steerable outboard motor (vectored thrust) where sideslip is a major concern.  Uses notation and maneuvering model from \cite{fossen94guidance}.
+\begin{itemize}
+\item Full vesel model is includes linear and quadratic damping
+\item All models are then linearized (perturbation dynamics) for the purpose of identification where the coefficients are parameterized by the states (surge, sway and yaw-rate)
+\item Actuation model thrust as a linear  and quadratic with velocity depedence.
+\end{itemize}
+\begin{itemize}
+\item Model idetification includes open-loop manuevers to identify steady-state parameters and closed-loop maneuvers to identify dynamic parameters.
+\end{itemize}
 \section{Maneuvering Model}
-In this section we follow the notation and process detailed in \cite{fossen11handbook}. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.
+In this section we follow the notation and process detailed in \cite{fossen11handbook}. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
 \beqn
-\bm{M}_{RB}\dot{\bm{\nu}} + \bm{M}_A\dot{\bm{\nu}}_r + 
-\bm{C}_{RB}(\bm{\nu})\bm{\nu} + \bm{C}_A(\bm{\nu}_r)\bm{\nu}_r + 
-\bm{D}(\bm{\nu}_r)\bm{\nu}_r
-= \bm{\tau}+\bm{\tau}_{wind}+\bm{\tau}_{waver}
+\underbrace{\bm{M}_{RB}\dot{\bm{\nu}}+\bm{C}_{RB}(\bm{\nu})\bm{\nu}}_\text{rigid-body forces} +
+\underbrace{\bm{M}_A\dot{\bm{\nu}}_r + \bm{C}_A(\bm{\nu}_r)\bm{\nu}_r + 
+\bm{D}(\bm{\nu}_r)\bm{\nu}_r}_\text{hydrodynamicforces}
+= \bm{\tau}+\bm{\tau}_{wind}+\bm{\tau}_{waves}
 \eeqn
 where $\bm{\nu}_r$ is the velocity vector relative to an irrotational water current $\bm{\nu}_c$, i.e., $\bm{\nu}=\bm{\nu}_r+\bm{\nu}_c$.  The rigid body kinetics are represented by the rigid body mass $\bm{M}_{RB}$ 
 \beqn
