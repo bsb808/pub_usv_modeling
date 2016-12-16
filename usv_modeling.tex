@@ -97,21 +97,48 @@ Abstract
 
 \section{Background}
 
+\subsection{\cite{sonnenburg10control} and \cite{sonnenburg13modeling}}
+
 \cite{sonnenburg13modeling} and \cite{sonnenburg10control} examine model for USV with steerable outboard motor (vectored thrust) where sideslip is a major concern.  Uses notation and maneuvering model from \cite{fossen94guidance}.
 \begin{itemize}
-\item Full vesel model is includes linear and quadratic damping
+\item Full vessel model is includes linear and quadratic damping
 \item All models are then linearized (perturbation dynamics) for the purpose of identification where the coefficients are parameterized by the states (surge, sway and yaw-rate)
 \item Actuation model thrust as a linear  and quadratic with velocity depedence.
 \end{itemize}
+Model identification appears to throw out the phyical model and rely on identification of linear models (perturbation models) and a set of discrete speeds.
 \begin{itemize}
 \item Model idetification includes open-loop manuevers to identify steady-state parameters and closed-loop maneuvers to identify dynamic parameters.
+\begin{enumerate}
+\item Steady-state values are identified by as linear relationships between yaw-rate, side-slip angle and side-sleep speed.  The coefficients of these a relationships are determined for a set of discrete, constant speeds.  The values of these coefficients change significantly over the range of forward speeds and now functional relationship is offered.  
+\item Thurster model conflates both the thrust relationship and the inertia of the system.  Model is identified by measuring initial acceleration during step changes in engine RPM and identifying the two linear coefficients of a linear model.  This single model is constant over the range of speeds.  Sparce data at higher speeds.
+\item Speed/surge is modeled as first-order model parameterized over speed range.
+\item Steering model (first order Nomoto model with sideslip) is indentified by minimizing a quadratic cost function of sideslip angle and yaw-rate over close-loop time histories. Again, the linearized models have coefficients that change with speed.  The results again show significant changes over the speed envelope without offering a functional relationship.
+\end{enumerate}
 \end{itemize}
+
+\subsection{\cite{caccia08practical}}
+Uses the nonlinear model of Blanke \cite{blanke81ship} as reported in \cite{fossen94guidance}.  Speed/surge model:
+\begin{itemize}
+\item Neglects added mass term based on Blanke comments.  Blanke suggests that the surge added mass term ``will typically be less then 5\%'' \cite{fossen94guidance}.
+\item Neglects $r^2$ terms, as suggested by Blanke, based on assuming reasonabley low yaw-rate (< 10 degrees/s). 
+\item Assumes linear+quadratic drag.  The Blanke model reported in \cite{fossen94guidance} includes only the quadratic term.  
+\item Neglects the Coriolis terms based on assuing negligible sway velocity.  The experimental evidence from \cite{sonnenburg13modeling} and \cite{sonnenburg10control} indicate that there is a significant sideslip angle, hence a significant sway velocity.
+\end{itemize}
+Steering model
+\begin{itemize}
+\item Neglects added mass in surge and yaw.
+\end{itemize}
+Sway (sideslip) was not observable in experiments!  Used only GPS and heading for identification making making many of the estimated quantities unreliable or unobservable.
+
+Thrust model neglects speed of advance, assumes thrust is independen of vessel speed.
+
+
 \section{Maneuvering Model}
-In this section we follow the notation and process detailed in \cite{fossen11handbook}. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
+In this section we follow the notation and process detailed in \cite{fossen11handbook}, Chapter 7. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
 \beqn
 \underbrace{\bm{M}_{RB}\dot{\bm{\nu}}+\bm{C}_{RB}(\bm{\nu})\bm{\nu}}_\text{rigid-body forces} +
 \underbrace{\bm{M}_A\dot{\bm{\nu}}_r + \bm{C}_A(\bm{\nu}_r)\bm{\nu}_r + 
-\bm{D}(\bm{\nu}_r)\bm{\nu}_r}_\text{hydrodynamicforces}
+\bm{D}(\bm{\nu}_r)\bm{\nu}_r}_\text{hydrodynamic forces}
 = \bm{\tau}+\bm{\tau}_{wind}+\bm{\tau}_{waves}
 \eeqn
 where $\bm{\nu}_r$ is the velocity vector relative to an irrotational water current $\bm{\nu}_c$, i.e., $\bm{\nu}=\bm{\nu}_r+\bm{\nu}_c$.  The rigid body kinetics are represented by the rigid body mass $\bm{M}_{RB}$ 
@@ -150,11 +177,105 @@ and the Coriolis-centripetal matrix for the added mass
  -Y_{\dot{v}}v_r - Y_{\dot{r}}r& X_{\dot{u}}u_r & 0 
 \end{array} \right].
 \eeqn
-It is worth noting that $\bm{C}_A$ includes the nonlinear Munk moment.  Following \cite{fosson11handbook} the SNAME notation for the hydrodynamic derivatives.
+It is worth noting that $\bm{C}_A$ includes the nonlinear Munk moment (see \cite{fossen11handbook} p.121).  Following \cite{fossen11handbook} the SNAME notation for the hydrodynamic derivatives.
 
 Use \cite{sonnenburg10control} to get linear + quadratic
+\beqn
+\bm{D}(\bm{\nu}_r)= \left[ 
+\begin{array}{ccc}
+X_u + X_{u|u|}|u| & 0 & 0 \\
+0 & Y_v + Y_{v|v|}|v| & Y_r+Y_{r|r|}|r|\\
+0 & N_v + N_{v|v|}|v| & N_r+N_{r|r|}|r|
+\end{array} \right].
+\eeqn
 
-\section{Acknowledgments}
+\subsection{Thrust Model}
+Two options:
+
+Assume thrust is independent of speed (as done in the Caccia papers).
+
+Or assume and unknown, linear decrease in thrust with speed.
+\[
+T = T_o (1-au)
+\]
+where $a$ is the linear speed reduction
+\subsection{Speed model}
+Consider the surge state of the model above where
+\beqn
+\underbrace{m \dot{u}}_\text{RB inertia}  
+- \underbrace{m x_g r^2}_\text{RB centripetal}
+- \underbrace{mvu}_\text{RB Coriolis}
+=
+\underbrace{X_{\dot{u}} \dot{u}}_\text{AM inertia}
++ \underbrace{Y_{\dot{v}}v_r r}_\text{AM Coriolis}
++ \underbrace{Y_{\dot{r}}r^2}_\text{AM centripetal}
++ \underbrace{X_u u + X_{u|u|}|u|u}_\text{Drag} 
++ \underbrace{T}_\text{Thrust}
+\eeqn
+Following \cite{caccia08practical}, based on \cite{fossen94guidance}, we neglect the second-order centripetal terms
+\beqn
+m \dot{u}
+- mvu
+=
+X_{\dot{u}} \dot{u}
++ Y_{\dot{v}}v_r r
++ X_u u + X_{u|u|}|u|u
++ T
+\eeqn
+
+For steady state forward motion ($\dot{u}=v=r=0$) in stationary water ($v_r=0$)
+\beqn
+0 =
++ X_u u + X_{u|u|}|u|u
++ T
+\eeqn
+We can estimate $X_u$ and $X_{u|u}$ from steady state forward motion trials with known thrust input by testing at a series of known forward speeds and measuring $u$.
+
+Considering forward-only acceleration
+\beqn
+m \dot{u}
+=
+X_{\dot{u}} \dot{u}
++ X_u u + X_{u|u|}|u|u
++ T
+\eeqn
+we can identify the added mass ($X_{\dot{u}}$) by either estimating the initial acceleration (see \cite{sonnenburg10control}) or by examing the 'time constant' for such tests.
+
+This leaves the coefficient $Y_{\dot{v}}$, related to the added-mass Coriolis force, as the single unknown.
+
+\subsection{Steering Model}
+
+
+\section{Model Identification Tests}
+\subsection{Physical Measurements}
+\begin{itemize}
+\item Measure the mass ($m$) directly.  
+\item Measure the moment of inertia ($I_z$) using a bifilar pendulum.
+\end{itemize}
+
+\subsection{Thrust Characterization}
+Bollard tests in the tank to measure thrust force (at zero velocity) as a function of motor command.
+
+\subsection{Steady-State Tests}
+\begin{itemize}
+\item Surge: Measure the steady-state speed at a variety of thrust inputs to identify the drag terms.
+\item Yaw: Measure the steady-state yaw rate at variety of torque inputs to identify the yaw drag terms.
+\end{itemize}
+
+
+\subsection{Open-Loop Dynamic Tests}
+\begin{itemize}
+\item Surge: Measure step response to forward thruste (with heading control?) to estimate added surge mass.
+\item Yaw: Measure step response to torque to estimate added mass/ineriat in yaw.
+\end{itemize}
+
+\subsection{Closed-Loop Dynamic Tests}
+
+%\section{Ship Dynamics}
+%Following \cite{fossen94guidance}, Ch 5.
+
+
+%\section{Acknowledgments}
 
 % standard IEEE bibliography style from:
 % http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/bibtex
