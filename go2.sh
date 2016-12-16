@@ -1,4 +1,4 @@
 #!/bin/bash
-pdflatex usv_modeling.tex
+./go.sh
 bibtex usv_modeling
-pdflatex usv_modeling.tex
+./go.sh

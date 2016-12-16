@@ -94,6 +94,13 @@ Abstract
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
+The goal of this effort is to develop a USV model that 
+\begin{itemize}
+\item Makes use of physically measurable quantities (mass and inertia)
+\item retains fidelity appropriate for 
+\item with predictive capabilities with and without water current
+\item that can be identified using static tests and manuevering trials with a USV and onboard sensors
+\end{itemize} 
 
 \section{Background}
 
@@ -133,8 +140,9 @@ Sway (sideslip) was not observable in experiments!  Used only GPS and heading fo
 Thrust model neglects speed of advance, assumes thrust is independen of vessel speed.
 
 
-\section{Maneuvering Model}
-In this section we follow the notation and process detailed in \cite{fossen11handbook}, Chapter 7. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
+\section{Maneuvering Models}
+\subsection{Nonlinear Maneuvering Model based on Second-order Modulus Functions}
+This model is uses second-order (linear and quadratic) terms for the dissapative terms. In this section we follow the notation and process detailed in \cite{fossen11handbook}, Chapter 7. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
 \beqn
 \underbrace{\bm{M}_{RB}\dot{\bm{\nu}}+\bm{C}_{RB}(\bm{\nu})\bm{\nu}}_\text{rigid-body forces} +
 \underbrace{\bm{M}_A\dot{\bm{\nu}}_r + \bm{C}_A(\bm{\nu}_r)\bm{\nu}_r + 
@@ -179,7 +187,7 @@ and the Coriolis-centripetal matrix for the added mass
 \eeqn
 It is worth noting that $\bm{C}_A$ includes the nonlinear Munk moment (see \cite{fossen11handbook} p.121).  Following \cite{fossen11handbook} the SNAME notation for the hydrodynamic derivatives.
 
-Use \cite{sonnenburg10control} to get linear + quadratic
+The linear and quadratic drag terms
 \beqn
 \bm{D}(\bm{\nu}_r)= \left[ 
 \begin{array}{ccc}
@@ -189,6 +197,124 @@ X_u + X_{u|u|}|u| & 0 & 0 \\
 \end{array} \right].
 \eeqn
 
+Equivalently we can express the same model in non-matrix form, where the speed equation in the surge direction is 
+\beqn
+\underbrace{m \dot{u}}_\text{RB inertia}  
+- \underbrace{m x_g r^2}_\text{RB centripetal}
+- \underbrace{mvr}_\text{RB Coriolis}
+=
+\underbrace{X_{\dot{u}} \dot{u}_r}_\text{AM inertia}
++ \underbrace{Y_{\dot{v}}v_r r}_\text{AM Coriolis}
++ \underbrace{Y_{\dot{r}}r^2}_\text{AM centripetal}
++ \underbrace{X_u u + X_{u|u|}|u|u}_\text{Drag} 
++ \underbrace{\tau}_\text{Thrust}
+\label{e:fullu}
+\eeqn
+and the coupled steering questions in the sway direction 
+\beqn
+\underbrace{m \dot{v} + m x_g \dot{r}}_\text{RB inertia}  
++ \underbrace{m ur}_\text{RB Coriolis}
+- \underbrace{Y_{\dot{v}}\dot{v} - Y_{\dot{r}}\dot{r}}_\text{AM inertia}
+=
++ \underbrace{Y_v v + Y_{v|v|}|v|v}_\text{Drag} 
++ \underbrace{Y_r r + Y_{r|r|}|r|r}_\text{Coupled Drag} 
+\label{e:fullv}
+\eeqn
+and yaw directions 
+
+\beqn
+\underbrace{I_z \dot{r} + m x_g \dot{v}}_\text{RB inertia}  
++ \underbrace{m x_g ru}_\text{RB Coriolis}
+- \underbrace{Y_{\dot{r}}\dot{v} - N_{\dot{r}}\dot{r}}_\text{AM inertia}
+- \lefteqn{\overbrace{\phantom{Y_{\dot{v}}v_r u + X_{\dot{u}}u_r v}}^\text{Monk Moment}}
+\underbrace{Y_{\dot{v}}v_r u + X_{\dot{u}}u_r v - Y_{\dot{r}}ru}_\text{AM Coriolis}
+- \underbrace{N_v v + N_{v|v|}|v|v}_\text{Coupled Drag} 
++ \underbrace{N_r r + N_{r|r|}|r|r}_\text{Drag} 
+= 
++ \underbrace{\tau}_\text{Torque}
+\label{e:fullr}
+\eeqn
+
+\subsection{Nonlinear Model of Blanke}
+As reported by \cite{fossen94guidance}, this model ``retains the most imoprtant terms for steering and propulsion''.  Formulating these equations for a rudder-less vessel, the speed equation becomes
+\beqn
+(m-X_{\dot{u}}) \dot{u} = X_{u|u|}|u|u + (m+X_{vr})vr + (mx_g+X_{rr})r^2 + \tau
+\label{e:blankeu}
+\eeqn
+Comparing (\ref{e:fullu}) and (\ref{e:blankeu}), noting that $Y_{\dot{v}}$ from  (\ref{e:fullu}) is equivalent to $X_{vr}$ in (\ref{e:blankeu}),  we can see that the only difference between these models is that the full model in (\ref{e:fullu}) includes both linear and quadratic drag terms, while Blanke's model includes only a quadratic term.  The linear term is important because it forces the system to coverge to zero surge.  Futhermore, results of other experiments suggest that the drag is not purely quadratic.  
+
+Blanke's steering model in sway, without rudder terms, is
+\beqn
+(m-Y_{\dot{v}}) \dot{v} + (m x_g - Y_{\dot{r}}) \dot{r}
+=
+-(m -Y_{ur})ur + Y_{uv}uv + Y_{v|v|}|v|v + Y_{|v|r}|v|r.
+\label{e:blankev}
+\eeqn
+Comparing (\ref{e:fullv}) and (\ref{e:blankev}) we note the following differences
+\begin{itemize}
+\item The ``Coupled Drag'' term in (\ref{e:fullv}) is neglected in the Blanke model. \hl{What is the affect of neglecting these coupled drag terms? Appears faily commonly in simplified models.}
+\item The linear component of cross-flow drag (\ref{e:fullv}) is neglected in the Blanke model
+\item The following second-order cross-coupling terms are present in Blanke that are not represented in  (\ref{e:fullv})
+  \begin{itemize}
+    \item $Y_{ur}ur$ - which appears as an added mass Coriolis term
+    \item $Y_{uv}uv$
+    \item $Y_{|v|r}|v|r$
+    \item \hl{What is the consequence of neglecting these? 
+Ditto for the yaw eqn.}
+  \end{itemize}
+\end{itemize}
+The steering equation for yaw is
+\beqn
+(m x_g - N_{\dot{v}})\dot{v} + (I_z - N_{\dot{r}})\dot{r}
+=
+-(m x_g - N_{ur})ur + N_{uv}uv + N_{v|v|}|v|v + N_{|v|r}|v|r
+\label{e:blanker}
+\eeqn
+\hl{What is the yaw drag expressed as $N_{v|v|}|v|v$?  Seems like it would be $N_{r|r|}|r|r$}
+Comparing (\ref{e:fullr}) and (\ref{e:blanker}), we note that the Monk moment has been collapsed into a single term $N_{uv}uv$ in (\ref{e:blanker}).  We note the following differences
+\begin{itemize}
+\item The ``Coupled Drag'' term in (\ref{e:fullr}) is neglected in the Blanke model
+\item The linear component of yaw drag (\ref{e:fullv}) is neglected in the Blanke model
+\item The second-order cross-coupling term $N_{|v|r}|v|r$ is present in Blanke model and not represented in\eref{e:fullr}.
+\end{itemize}
+
+\subsection{Simplified Model of Blanke from \cite{caccia08practical}}
+In \cite{caccia08practical} the Blanke model is used, with the addition of linear drag terms, and the following assumptions are made:
+\begin{itemize}
+\item Speed: Surge
+  \begin{itemize}
+  \item Added mass in surge ($X_{\dot{u}}$) is negligible - less than 5\% of vessel mass.  This seem reasoable, but is not really necessary since the mass and added mass are lumped together in the identification.
+  \item The Coriolis terms $(m+X_{vr})vr$, both rigid body and added mass contributions, are negligible because the sway speed is negligible.  \hl{This would seem to limit the sideslip.}  The experiments in \cite{sonnenburg10control}suggest the sideslip would be an important component for this type of vehicle.
+  \item The centripetal terms $(mx_g+X_{rr})r^2$ are neglected on the assumption of a low turn rate.  This is probably reasonable?
+  \end{itemize}
+\item Steering: Sway and Yaw
+  \begin{itemize}
+  \item Added mass in both directions is neglected.  Again, probably not necessary since the identification estimates the combination of rigid body and added mass.
+  \item Although the author's don't make it explicit(!), they neglect the rigid body and added mass coupling terms  \hl{I believe this is equivalent to assuming that the principle axes of inertia for the vessel (the body-centered coordinate frame) are co-located with the center of mass of the vessel.}
+    \begin{itemize}
+    \item $(m x_g - Y_{\dot{r}})\dot{r}$ in the sway equation
+    \item $(m x_g - N_{\dot{v}})\dot{v}$ in the yaw equation
+    \end{itemize}
+  \item The ``coupled drag terms are neglected because $v$ and $r$ are typically small''.  We can only assume they are refering to the folloing terms - \hl{Are these correctly identified as ``coupling drag terms''?  Are they negligible?}
+    \begin{itemize}
+    \item $Y_{uv}uv$ and $Y_{|v|r}|v|r$ in sway
+    \item 
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+For our vessel this would be equivalent to the following steering equations
+\beqn
+(m) \dot{v}
+=
+-(m -Y_{ur})ur + Y_v v + Y_{v|v|}|v|v .
+\label{e:blanke2v}
+\eeqn
+\beqn
+I_z\dot{r}
+=
+-(m x_g - N_{ur})ur + N_{uv}uv + N_{v|v|}|v|v + N_{|v|r}|v|r
+\label{e:blanke2r}
+\eeqn
 \subsection{Thrust Model}
 Two options:
 
