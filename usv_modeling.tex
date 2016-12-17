@@ -140,6 +140,7 @@ Sway (sideslip) was not observable in experiments!  Used only GPS and heading fo
 Thrust model neglects speed of advance, assumes thrust is independen of vessel speed.
 
 
+
 \section{Maneuvering Models}
 \subsection{Nonlinear Maneuvering Model based on Second-order Modulus Functions}
 This model is uses second-order (linear and quadratic) terms for the dissapative terms. In this section we follow the notation and process detailed in \cite{fossen11handbook}, Chapter 7. The horiozontal-plane maneuvering model captures is formulated using state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively.  The velocities are considered to be relative to an irrotational constant ocean current.  The nonlinear maneuvering equations from \cite{fossen11handbook} are
@@ -270,7 +271,9 @@ The steering equation for yaw is
 -(m x_g - N_{ur})ur + N_{uv}uv + N_{v|v|}|v|v + N_{|v|r}|v|r
 \label{e:blanker}
 \eeqn
-\hl{What is the yaw drag expressed as $N_{v|v|}|v|v$?  Seems like it would be $N_{r|r|}|r|r$}
+\hl{What/Why is the quadratic yaw drag expressed as $N_{v|v|}|v|v$?  Seems like it would be $N_{r|r|}|r|r$.}
+
+\noindent
 Comparing (\ref{e:fullr}) and (\ref{e:blanker}), we note that the Monk moment has been collapsed into a single term $N_{uv}uv$ in (\ref{e:blanker}).  We note the following differences
 \begin{itemize}
 \item The ``Coupled Drag'' term in (\ref{e:fullr}) is neglected in the Blanke model
@@ -295,14 +298,19 @@ In \cite{caccia08practical} the Blanke model is used, with the addition of linea
     \item $(m x_g - Y_{\dot{r}})\dot{r}$ in the sway equation
     \item $(m x_g - N_{\dot{v}})\dot{v}$ in the yaw equation
     \end{itemize}
-  \item The ``coupled drag terms are neglected because $v$ and $r$ are typically small''.  We can only assume they are refering to the folloing terms - \hl{Are these correctly identified as ``coupling drag terms''?  Are they negligible?}
+  \item Again, this is not explicit, but the authors omit the Coriolis terms, both rigid body and added mass, $-(mx_g-N_{ur})ur$. The reason for omission is not provided in the text.
+  \item The ``coupled drag terms are neglected because $v$ and $r$ are typically small''.  We can only assume they are referring to the following terms - \hl{Are these correctly identified as ``coupling drag terms''?  Are they negligible?}
     \begin{itemize}
-    \item $Y_{uv}uv$ and $Y_{|v|r}|v|r$ in sway
-    \item 
+    \item $Y_{uv}uv$ and $Y_{|v|r}|v|r$ are negligible in sway
+    \item $N_{uv}uv$ and $N_{|v|r}|v|r$ are negligible in yaw
     \end{itemize}
+   \item The quadratic term $N_{|v|v}|v|v$ in the Blanke model is substituted with a linear and quadratic term as a function of yaw, $N_r r+N_{|r|r}|r|r$. \hl{As indicated previously, I'm not clear whey this term is related to the sway velocity in the first place.}
   \end{itemize}
 \end{itemize}
-For our vessel this would be equivalent to the following steering equations
+For our vessel this would be equivalent to the following speed and steering equations
+\beqn
+m\dot{u} = X_u u X_{|u|u}|u|u + \tau
+\eeqn
 \beqn
 (m) \dot{v}
 =
@@ -312,9 +320,27 @@ For our vessel this would be equivalent to the following steering equations
 \beqn
 I_z\dot{r}
 =
--(m x_g - N_{ur})ur + N_{uv}uv + N_{v|v|}|v|v + N_{|v|r}|v|r
+ N_r r + N_{r|r|}|r|r + \tau
 \label{e:blanke2r}
 \eeqn
+This model is greatly simplified. \hl{Us such a high degree of simplification justified?}
+
+\subsection{\cite{muske08identification}}
+The model in \cite{muske08identification} supposedly comes from  \cite{fossen94guidance} (although I haven't found it yet).  This model includes a power-law drag model in each direction, combined rigid body and added mass terms and (unlike the simplified Blanke model from \cite{caccia08practical}) includes the Coriolis terms.  The equations of motion are
+\begin{eqnarray}
+m_{11}\dot{u} - m_{22}vr + d_1 u^{\alpha_1} = \tau_{Thrust} \\
+m_{22}\dot{v} +  m_{11}ur + d_2 u^{\alpha_2} = 0\\
+m_{33}\dot{r} + (m_{22}-m_{11})uv + d_3 u^{\alpha_3} = \tau_{Torque} \\
+\end{eqnarray}
+Comparing this model to the nonlinear maneuvering model in \eref{e:fullu,e:fullv,e:fullr} we see that
+\begin{itemize}
+\item Rigid body mass and added mass are combined in all terms
+\item They assume the body-axis and center of mass are collocated
+\item All centripetal terms are neglected
+\item Drag modeled as a power law, which may be more general (with the same number of parameters) as the linear+quadratic model.
+\item There are some additional assumptions here to make this work out - i.e., deriving this from the original nonlinear model.
+\end{itemize}
+
 \subsection{Thrust Model}
 Two options:
 
