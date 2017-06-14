@@ -145,6 +145,76 @@ Sway (sideslip) was not observable in experiments!  Used only GPS and heading fo
 
 Thrust model neglects speed of advance, assumes thrust is independent of vessel speed.
 
+\section{Simplified Models for Control}
+The horizontal-plane maneuvering model uses the state vector $\bm{\nu}=[u,v,r]^T$ where the velocities $u$, $v$ and $r$ are in the surge, sway and yaw directions respectively. 
+
+Euler angles for angular deplacements/velocities are
+\begin{itemize}
+\item roll $\phi$, $p=\dot{\phi}$
+\item pitch $\theta$, $q=\dot{\theta}$
+\item yaw $\psi$, $r=\dot{\psi}$
+\end{itemize}
+
+We consider control to regulate the forward speed ($u$) and the yaw angle ($\psi$) simultaneously.
+
+\subsection{Linear Models}
+This is the simplest model and us useful as a benchmark for control performance.
+\begin{itemize}
+\item linear dynamics
+\item linear thrust model
+\item unbounded thrust
+\item uncoupled dynamics (surge/sway/yaw)
+\end{itemize}
+
+Control inputs:
+\begin{itemize}
+\item $X_c$ is total control force in the surge direction.
+\item $N_c$ is the total control torque in the yaw direction.
+\end{itemize}
+
+Surge model
+\[
+m \dot{u} + X_u u = X_c
+\]
+where $m$ is the total mass, both rigid body and added mass, and $X_u$ is the linear drag.
+
+Yaw model
+\[
+I_z \ddot{\psi} + N_r \dot{\psi} = N_c
+\]
+where $I_z$ is the total inertia in the yaw direction and $N_r$ is the linear drag.
+
+\subsubsection{Linear Model Control}
+
+We need to identify some reasonable parameters for the models above.  Could do this by
+\begin{itemize}
+\item weighing the vehicle
+\item using test data for steady-state velocities (and thrust values) to estimate linear drag coefficients.
+\item rough estimate of moment of inertia
+\end{itemize}
+
+With this specific model, we can apply build a two PID controllers - one for the surge model and one of the yaw model.  Use Zeigler-Nichols, or similar, tuning process to standardize the tuning.  Use this as a baseline for closed-loop performance
+
+Consider adding a feedforward term to the surge PID controller to anticipate drag.  How much does this change the performance.
+
+
+\subsection{Uncoupled Non-Linear Models}
+
+\begin{itemize}
+\item non-linear (quadratic) drag
+\item non-linear thruster model
+\item thrust saturation
+\end{itemize}
+May want to address these issues one-at-a-time.
+
+Look into specific ways to design PID with saturation.
+
+
+
+
+
+
+
 
 
 \section{Maneuvering Models}
