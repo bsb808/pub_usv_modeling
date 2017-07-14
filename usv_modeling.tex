@@ -70,7 +70,7 @@
 %\newcommand{\scaleOneTwo}[2] {\scalebox{#2}}
 
 % Graphics for this paper
-\graphicspath{{./figs/}}
+\graphicspath{{images/}}
 
 % paper title
 %\title{Towards an Experimentally Validated Plume Model to Support Robotic Plume Characterization}
@@ -184,18 +184,24 @@ I_z \ddot{\psi} + N_r \dot{\psi} = N_c
 \]
 where $I_z$ is the total inertia in the yaw direction and $N_r$ is the linear drag.
 
-\subsubsection{Linear Model Control}
-
-We need to identify some reasonable parameters for the models above.  Could do this by
+Here are some rough physical parameters to use.
 \begin{itemize}
-\item weighing the vehicle
-\item using test data for steady-state velocities (and thrust values) to estimate linear drag coefficients.
-\item rough estimate of moment of inertia
+\item $m=\unit[28]{kg}$: based on weight specified by clearpth.  Ignores added-mass.  Should weigh our actual USV to verify.
+\item $X_u=\frac{\unitfrac[1.5]{m}{s}}{\unit[40]{N}}=\unitfrac[0.0375]{m}{Ns}$: based on linear interpretation of Figure~\ref{f:t-force}.
+\item $I_z = \unit[28]{kg} (\unit[0.5]{m})^2 = \unit[6.25]{kg m^2}$: based on approximation of USV as thin disc.
+\item $N_r = \frac{\unitfrac[0.25]{rad}{s}}{\unit{8}{Nm}} = \unitfrac[0.0313]{rad}{Nms}$: basded on linear interpretation of Figure~\ref{f:t-yaw}.
 \end{itemize}
 
-With this specific model, we can apply build a two PID controllers - one for the surge model and one of the yaw model.  Use Zeigler-Nichols, or similar, tuning process to standardize the tuning.  Use this as a baseline for closed-loop performance
+\subsubsection{Linear Model Control: PID}
 
-Consider adding a feedforward term to the surge PID controller to anticipate drag.  How much does this change the performance.
+With this specific model, we can apply build a two PID controllers - one for the surge model (PI control) and one of the yaw model (PD control).  Use Zeigler-Nichols, or similar, tuning process to standardize the tuning.  Use this as a baseline for closed-loop performance.
+
+\subsubsection{Linear Model Control: PID+}
+Consider adding a feedforward term to the surge PI controller to anticipate drag.  (This isn't really applicable to the yaw controller.)  See \cite{caccia00guidance} for an example of such an architecture, which includes both feedforward and gain scheduling.  We'll only deal with feedforward for now.
+\begin{itemize}
+\item How much does adding feedforward change the performance?
+\end{itemize}
+
 
 
 \subsection{Uncoupled Non-Linear Models}
@@ -209,6 +215,28 @@ May want to address these issues one-at-a-time.
 
 Look into specific ways to design PID with saturation.
 
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{thrust_cmd_relationship.png}
+\caption{Relationship between thrust command a total measured thrust force.}
+\label{f:t-cmd}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{vel_vs_totalthrustforce.png}
+\caption{Steady-state forward velocity vs. total thrust force.}
+\label{f:t-force}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{yawrate_vs_torque.png}
+\caption{Steady-state yaw angular velocity vs. total torqu.}
+\label{f:t-yaw}
+\end{figure}
 
 
 
