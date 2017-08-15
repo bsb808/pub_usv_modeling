@@ -1,10 +1,10 @@
 %% Load mat data
-load('2017-03-10-13-03-49.bag.mat')
+load('dynamic_yaw_test_data.mat')
 
 %% Look at all data
 figure(1)
 clf()
-plot(ts_odomv.Time-ts_odomv.Time(1),ts_odomv.Data,'.')
+plot(time,ang_vel)
 hold on
 plot(ts_cmd.Time-ts_odomv.Time(1),ts_cmd.Data,'o')
 legend([cols_odomv;cols_cmd])
@@ -38,7 +38,7 @@ for ii = 1:length(T0)
 
     ttt = tt(I:J)-tt(I);
     vvv = vv(I:J);
-    figure()
+    figure(3)
     clf()
     plot(ttt,vvv,'.')
     xlabel('Time [s]');
@@ -61,6 +61,7 @@ for ii = 1:length(T0)
     c = confint(f0);
 
     vhat = feval(f0,ttt);
+    figure(3)
     hold on
     plot(ttt,vhat,'r-')
     legend('Data',sprintf('Fit: k=%.2f N/(m/s)^2',k),'location','southeast')
@@ -69,6 +70,7 @@ for ii = 1:length(T0)
 
     % Print figure to file
     exfig(150,sprintf('fit_%d.png',ii));
+    pause
 end
 
 
