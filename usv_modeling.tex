@@ -155,9 +155,9 @@ Euler angles for angular deplacements/velocities are
 \item yaw $\psi$, $r=\dot{\psi}$
 \end{itemize}
 
-We consider control to regulate the forward speed ($u$) and the yaw angle ($\psi$) simultaneously.
+We consider control to regulate the forward speed ($u$) and the yaw angle ($\psi$) simultaneously, but for simplicity we will consider surge and yaw indpendenty.  This allows us to develop single-input, single-output control designs for each degree-of-freedem independently, and them combine them in the implementation.
 
-\subsection{Linear Models}
+\subsection{Linear Models of Surge and Yaw}
 This is the simplest model and us useful as a benchmark for control performance.
 \begin{itemize}
 \item linear dynamics
@@ -206,42 +206,98 @@ Consider adding a feedforward term to the surge PI controller to anticipate drag
 
 \subsection{Uncoupled Non-Linear Models}
 
-\begin{itemize}
-\item non-linear (quadratic) drag
-\item non-linear thruster model
-\item thrust saturation
-\end{itemize}
-May want to address these issues one-at-a-time.
+\subsubsection{Quadratic Drag}
+If we consider the drag force in surge and yaw as proportial to the square of the velocity, we arrive the models
+\begin{eqnarray}
+m \dot{u} +  \left(X_{u|u|}\right) |u| u = X_c \\
+I_z \ddot{\psi} + \left(N_{r|r|}|\right)|\dot{\psi}|\dot{\psi} = N_c.
+\end{eqnarray}
+The quadratic drag coefficients were identified by Nick Manzini based on the data in Figures~\ref{f:drag_surge} and~\ref{f:drag_yaw}.  The estimates of the terms are
+\begin{eqnarray}
+X_{u|u|} = \unitfrac[16.9]{N}{(m/s)^2} \\
+N_{r|r|} = \unitfrac[139.0]{(Nm)}{(rad/s)^2} .
+\end{eqnarray}
 
-Look into specific ways to design PID with saturation.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\linewidth]{quad_drag_surge.png}
+\caption{Experimental identification of surge drag characteristics.}
+\label{f:drag_surge}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\linewidth]{quad_drag_yaw.png}
+\caption{Experimental identification of yaw drag characteristics.}
+\label{f:drag_yaw}
+\end{figure}
+
+\subsubsection{Linear Thrust Saturation}
+Another important aspect of the system that can be represented is the limitation of the available control thrust. The bollard test data in Figure~\ref{f:tcurve} suggest the maximum forward thrust for each thruster is \unit[20]{N} and the maximum reverse thrust is \unit[-12]{N}.  
+
+For surge force ($X_c$), this would result it maximum forward thrust of \unit[40]{N} and a minimum forward thrust of \unit[-12]{N}.
+
+For yaw torque ($N_c$), this would result in a maximum of \unit[14]{Nm} - based on a distance between the two thrusters of \unit[0.88]{m}.
+
+ 
+\subsubsection{Nonlinear Thrust Curve}
+The input to the USV is a motor command.  This command is a normalized value ($\{-1.0,1.0\}$) sent to the speed controller for the electric motor.  This results in a thrust force for each thruster.  The experimental results in Figure~\ref{f:tcurve} and Table~\ref{t:tcurve} illstrate this nonlinear relationship.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{thrust_cmd_relationship.png}
-\caption{Relationship between thrust command a total measured thrust force.}
-\label{f:t-cmd}
+\caption{Relationship between thrust command a total measured thrust force (two thrusters). The ``line of best fit'' is a spline fit of the data.}
+\label{f:tcurve}
+\end{figure}
+
+\begin{table}[hbt!] 
+\renewcommand{\arraystretch}{1.2}
+\caption{Relationship between measured thrust and thrust command for a single thruster.  }
+\label{t:tcurve}
+\centering
+\csvautotabular{tcurve.csv}
+\end{table}
+
+We could implement this in at least two different ways.  We could use a table lookup method to interpolate between the discrete data points in Table~\ref{t:tcurve}.  For the purposes of the simulated USV model, this method would likely provide better agreement with the vehilce behavior.
+
+Alternatively, we could fit the data with a function.  The generalized logitic function,
+\begin{equation}
+Y(x) = A + \frac{K-A}{ \left(C + \exp{(-B(x-M))} \right)^{1/\nu} },
+\end{equation}
+is a good candidate.  Because the thrust curve is not symmetric, we need to fit two curves---one for forward thrust and one for reverse thrust.  The resulting thruster curve model in Figure~\ref{f:tcurve_both} uses the parameters in Table~\ref{t:tcurvefit}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{tcurve_pos.png}
+\caption{Thrust curve model for forward thrust - single thruster.}
+\label{f:tcurve_pos}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{vel_vs_totalthrustforce.png}
-\caption{Steady-state forward velocity vs. total thrust force.}
-\label{f:t-force}
+\includegraphics[width=0.7\linewidth]{tcurve_neg.png}
+\caption{Thrust curve model for reverse thrust - single thruster.}
+\label{f:tcurve_neg}
 \end{figure}
-
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{yawrate_vs_torque.png}
-\caption{Steady-state yaw angular velocity vs. total torqu.}
-\label{f:t-yaw}
+\includegraphics[width=0.7\linewidth]{tcurve_both.png}
+\caption{Thrust curve model, generalized logistic functions, for forward and reverse thrust - single thruster.}
+\label{f:tcurve_both}
 \end{figure}
 
 
+\begin{table}[hbt!] 
+\renewcommand{\arraystretch}{1.2}
+\caption{Generalized logistic function parameters for curve fit.}
+\label{t:tcurvefit}
+\centering
+\csvautotabular{tcurvefit.csv}
+\end{table}
 
-
-
+\clearpage
 
 
 
